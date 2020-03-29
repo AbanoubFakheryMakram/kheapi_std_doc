@@ -8,12 +8,12 @@ import 'package:kheabia/utils/const.dart';
 import 'package:kheabia/widgets/my_drop_down_form_field.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class AbsenceReview extends StatefulWidget {
+class StudentAbsenceReview extends StatefulWidget {
   @override
-  _AbsenceReviewState createState() => _AbsenceReviewState();
+  _StudentAbsenceReviewState createState() => _StudentAbsenceReviewState();
 }
 
-class _AbsenceReviewState extends State<AbsenceReview> {
+class _StudentAbsenceReviewState extends State<StudentAbsenceReview> {
   String subject = '';
   String doctorName = 'اسم الدكتور';
   String currentCount = '0';
@@ -60,7 +60,7 @@ class _AbsenceReviewState extends State<AbsenceReview> {
 
       for (int j = 0; j < studentQuerySnapshot.documents.length; j++) {
         if (studentQuerySnapshot.documents[j].data['id'] ==
-            Pointer.currentUser.id) {
+            Pointer.currentStudent.id) {
           Subject subject = Subject(
             name: currentSubject.data['name'],
             code: currentSubject.data['code'],
@@ -129,8 +129,9 @@ class _AbsenceReviewState extends State<AbsenceReview> {
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.all(
-                        ScreenUtil().setHeight(8.0),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: ScreenUtil().setWidth(16.0),
+                        vertical: ScreenUtil().setHeight(12),
                       ),
                       child: MyFadeAnimation(
                         delayinseconds: 1,
@@ -161,48 +162,68 @@ class _AbsenceReviewState extends State<AbsenceReview> {
                         ),
                       ),
                     ),
-                    MyFadeAnimation(
-                      delayinseconds: 1.5,
-                      child: Container(
-                        height: ScreenUtil().setHeight(40),
-                        decoration: BoxDecoration(
-                          color: Const.mainColor,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        margin: EdgeInsets.all(
-                          ScreenUtil().setHeight(10),
-                        ),
-                        child: Center(
-                          child: Text(
-                            doctorName,
-                            style: TextStyle(
-                              fontFamily: 'Tajawal',
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: ScreenUtil().setWidth(16.0),
+                      ),
+                      child: MyFadeAnimation(
+                        delayinseconds: 1.5,
+                        child: Container(
+                          height: ScreenUtil().setHeight(40),
+                          decoration: BoxDecoration(
+                            color: Const.mainColor,
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          margin: EdgeInsets.all(
+                            ScreenUtil().setHeight(10),
+                          ),
+                          child: Center(
+                            child: Text(
+                              doctorName,
+                              style: TextStyle(
+                                fontFamily: 'Tajawal',
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                    MyFadeAnimation(
-                      delayinseconds: 2,
-                      child: _buildInfoField(
-                        title: 'عدد المحاضرات',
-                        count: '$currentCount',
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: ScreenUtil().setWidth(16.0),
+                      ),
+                      child: MyFadeAnimation(
+                        delayinseconds: 2,
+                        child: _buildInfoField(
+                          title: 'عدد المحاضرات',
+                          count: '$currentCount',
+                        ),
                       ),
                     ),
-                    MyFadeAnimation(
-                      delayinseconds: 2.5,
-                      child: _buildInfoField(
-                        title: 'عدد مرات الحضور',
-                        count: '$numberOfTimes',
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: ScreenUtil().setWidth(16.0),
+                      ),
+                      child: MyFadeAnimation(
+                        delayinseconds: 2.5,
+                        child: _buildInfoField(
+                          title: 'عدد مرات الحضور',
+                          count: '$numberOfTimes',
+                        ),
                       ),
                     ),
-                    MyFadeAnimation(
-                      delayinseconds: 3,
-                      child: _buildInfoField(
-                        title: 'عدد مرات الغياب',
-                        count: '$numberOfAbsances',
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: ScreenUtil().setWidth(16.0),
+                      ),
+                      child: MyFadeAnimation(
+                        delayinseconds: 3,
+                        child: _buildInfoField(
+                          title: 'عدد مرات الغياب',
+                          count: '$numberOfAbsances',
+                        ),
                       ),
                     ),
                   ],

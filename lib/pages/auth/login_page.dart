@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:kheabia/animations/fade_animation.dart';
 import 'package:kheabia/clips/login_clipper.dart';
-import 'package:kheabia/models/user.dart';
+import 'package:kheabia/models/doctor.dart';
+import 'package:kheabia/models/student.dart';
 import 'package:kheabia/pages/auth/forgot_password.dart';
-import 'package:kheabia/pages/studients/home_page.dart';
+import 'package:kheabia/pages/doctors/doctor_home_page.dart';
+import 'package:kheabia/pages/studients/student_home_page.dart';
 import 'package:kheabia/utils/app_utils.dart';
 import 'package:kheabia/utils/const.dart';
 import 'package:kheabia/utils/firebase_methods.dart';
@@ -21,6 +23,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  // 0 >> Doctor    ||    1 >> Student
   int selectedRadio;
 
   bool hidePassword = true;
@@ -73,7 +76,7 @@ class _LoginPageState extends State<LoginPage> {
                 ClipPath(
                   clipper: MyClipper(),
                   child: Container(
-                    height: ScreenUtil().setHeight(108),
+                    height: ScreenUtil().setHeight(148),
                     color: Const.mainColor,
                     child: Center(
                       child: MyFadeAnimation(
@@ -91,6 +94,51 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    GestureDetector(
+                      onTap: () {
+                        setSelectedRadio(0);
+                      },
+                      child: Row(
+                        children: <Widget>[
+                          Text(
+                            'دكتور',
+                            style: TextStyle(color: Colors.black, fontSize: 16),
+                          ),
+                          Radio(
+                            value: 0,
+                            groupValue: selectedRadio,
+                            onChanged: (int val) {
+                              setSelectedRadio(val);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        setSelectedRadio(1);
+                      },
+                      child: Row(
+                        children: <Widget>[
+                          Text(
+                            'طالب',
+                            style: TextStyle(color: Colors.black, fontSize: 16),
+                          ),
+                          Radio(
+                            value: 1,
+                            groupValue: selectedRadio,
+                            onChanged: (int val) {
+                              setSelectedRadio(val);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
                 Form(
                   key: formKey,
                   child: Padding(
@@ -99,83 +147,90 @@ class _LoginPageState extends State<LoginPage> {
                       right: ScreenUtil().setHeight(10.0),
                       top: ScreenUtil().setHeight(18.0),
                     ),
-                    child: Column(
-                      children: <Widget>[
-                        MyFadeAnimation(
-                          delayinseconds: 2,
-                          child: _buildInputField(
-                            hintText: 'اسم المستخدم',
-                            isPassword: false,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: ScreenUtil().setWidth(16)),
+                      child: Column(
+                        children: <Widget>[
+                          MyFadeAnimation(
+                            delayinseconds: 2,
+                            child: _buildInputField(
+                              hintText: 'اسم المستخدم',
+                              isPassword: false,
+                            ),
                           ),
-                        ),
-                        MyFadeAnimation(
-                          delayinseconds: 2.5,
-                          child: _buildInputField(
-                            hintText: 'كلمة المرور',
-                            isPassword: true,
+                          SizedBox(
+                            height: ScreenUtil().setHeight(18),
                           ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(
-                            left: ScreenUtil().setHeight(10.0),
-                            right: ScreenUtil().setHeight(10.0),
-                            bottom: ScreenUtil().setHeight(10.0),
-                            top: ScreenUtil().setHeight(10.0),
+                          MyFadeAnimation(
+                            delayinseconds: 2.5,
+                            child: _buildInputField(
+                              hintText: 'كلمة المرور',
+                              isPassword: true,
+                            ),
                           ),
-                          child: Align(
-                            alignment: Alignment.centerRight,
-                            child: SlideInRight(
-                              delay: Duration(seconds: 3),
-                              child: GestureDetector(
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    PageTransition(
-                                      child: ForgotPassword(),
-                                      type: PageTransitionType
-                                          .rightToLeftWithFade,
+                          Padding(
+                            padding: EdgeInsets.only(
+                              left: ScreenUtil().setHeight(10.0),
+                              right: ScreenUtil().setHeight(10.0),
+                              bottom: ScreenUtil().setHeight(10.0),
+                              top: ScreenUtil().setHeight(10.0),
+                            ),
+                            child: Align(
+                              alignment: Alignment.centerRight,
+                              child: SlideInRight(
+                                delay: Duration(seconds: 3),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      PageTransition(
+                                        child: ForgotPassword(),
+                                        type: PageTransitionType
+                                            .rightToLeftWithFade,
+                                      ),
+                                    );
+                                  },
+                                  child: Text(
+                                    'نسيت كلمة المرور؟',
+                                    style: TextStyle(
+                                      fontFamily: 'Tajawal',
                                     ),
-                                  );
-                                },
-                                child: Text(
-                                  'نسيت كلمة المرور؟',
-                                  style: TextStyle(
-                                    fontFamily: 'Tajawal',
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                MyFadeAnimation(
-                  delayinseconds: 3,
-                  child: Container(
-                    key: buttonKey,
-                    margin: EdgeInsets.only(
-                      left: ScreenUtil().setWidth(20),
-                      right: ScreenUtil().setWidth(20),
-                      bottom: ScreenUtil().setWidth(30),
-                      top: ScreenUtil().setHeight(60.0),
-                    ),
-                    height: ScreenUtil().setHeight(48),
-                    width: width,
-                    child: RectGetter(
-                      key: globalKey,
-                      child: ProgressButton(
-                        color: Const.mainColor,
-                        child: Text(
-                          'تسجيل الدخول',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: 'Tajawal',
+                          MyFadeAnimation(
+                            delayinseconds: 3.5,
+                            child: Container(
+                              key: buttonKey,
+                              margin: EdgeInsets.only(
+                                left: ScreenUtil().setWidth(20),
+                                right: ScreenUtil().setWidth(20),
+                                bottom: ScreenUtil().setWidth(30),
+                                top: ScreenUtil().setHeight(30.0),
+                              ),
+                              height: ScreenUtil().setHeight(48),
+                              width: width,
+                              child: RectGetter(
+                                key: globalKey,
+                                child: ProgressButton(
+                                  color: Const.mainColor,
+                                  child: Text(
+                                    'تسجيل الدخول',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: 'Tajawal',
+                                    ),
+                                  ),
+                                  onPressed: (AnimationController controller) {
+                                    animatedButton(controller);
+                                  },
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
-                        onPressed: (AnimationController controller) {
-                          animatedButton(controller);
-                        },
+                        ],
                       ),
                     ),
                   ),
@@ -217,7 +272,6 @@ class _LoginPageState extends State<LoginPage> {
       padding: EdgeInsets.only(
         left: ScreenUtil().setHeight(8.0),
         right: ScreenUtil().setHeight(8.0),
-        bottom: ScreenUtil().setHeight(8.0),
       ),
       child: TextFormField(
         cursorColor: Colors.black,
@@ -291,7 +345,6 @@ class _LoginPageState extends State<LoginPage> {
               color: Colors.red,
             ),
           ),
-          floatingLabelBehavior: FloatingLabelBehavior.auto,
           hintText: hintText,
           contentPadding: EdgeInsets.all(
             ScreenUtil().setHeight(12),
@@ -325,15 +378,32 @@ class _LoginPageState extends State<LoginPage> {
         return;
       }
 
-      bool isExist = await FirebaseUtils.doesUsernameExist(username: username);
+      bool isExist;
+      if (selectedRadio == 1) {
+        isExist = await FirebaseUtils.doesUsernameExist(
+          username: username,
+          collection: 'Students',
+        );
+      } else {
+        isExist = await FirebaseUtils.doesUsernameExist(
+          username: username,
+          collection: 'Doctors',
+        );
+      }
 
-      // this aacount is exist
       if (isExist) {
-        DocumentSnapshot snapshot =
-            await FirebaseUtils.getCurrentUserData(username: username);
+        DocumentSnapshot snapshot = await FirebaseUtils.getCurrentUserData(
+          username: username,
+          collection: selectedRadio == 1 ? 'Studens' : 'Doctors',
+        );
 
+        var user;
+        if (selectedRadio == 1) {
+          user = Student.fromMap(snapshot.data);
+        } else {
+          user = Doctor.fromMap(snapshot.data);
+        }
         // get a snapshot of user data
-        User user = User.fromMap(snapshot.data);
 
         // check for input password
         // case true login user
@@ -394,14 +464,19 @@ class _LoginPageState extends State<LoginPage> {
           'username',
           username,
         );
+        pref.setString('type', selectedRadio == 1 ? '1' : '0');
       },
     );
     Navigator.of(context)
         .pushReplacement(
           PageTransition(
-            child: StudientHomePage(
-              username: username,
-            ),
+            child: selectedRadio == 1
+                ? StudentHomePage(
+                    username: username,
+                  )
+                : DoctorHomePage(
+                    username: username,
+                  ),
             type: PageTransitionType.fade,
           ),
         )

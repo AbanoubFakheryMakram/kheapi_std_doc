@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:kheabia/animations/splash_tap.dart';
 import 'package:kheabia/models/pointer.dart';
-import 'package:kheabia/models/user.dart';
+import 'package:kheabia/models/student.dart';
 import 'package:kheabia/pages/auth/login_page.dart';
 import 'package:kheabia/pages/studients/scan_code_page.dart';
 import 'package:kheabia/utils/app_utils.dart';
@@ -14,45 +14,46 @@ import 'package:kheabia/utils/firebase_methods.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'absence_review.dart';
+import 'student_absence_review.dart';
 
-class StudientHomePage extends StatefulWidget {
+class StudentHomePage extends StatefulWidget {
   final String username;
 
-  const StudientHomePage({Key key, this.username}) : super(key: key);
+  const StudentHomePage({Key key, this.username}) : super(key: key);
 
   @override
-  _StudientHomePageState createState() => _StudientHomePageState();
+  _StudentHomePageState createState() => _StudentHomePageState();
 }
 
-class _StudientHomePageState extends State<StudientHomePage> {
-  bool networkIsActive = false;
+class _StudentHomePageState extends State<StudentHomePage> {
+  bool networkIsActive = true;
 
   @override
   void initState() {
     super.initState();
 
-    subscripToConnection();
+    subscribToConnection();
   }
 
   void loadUserData() async {
     DocumentSnapshot snapshot = await FirebaseUtils.getCurrentUserData(
-      username: widget.username,
-    );
+        username: widget.username, collection: 'Students');
 
-    User currentUser = User.fromMap(snapshot.data);
-    Pointer.currentUser = currentUser;
+    Student currentUser = Student.fromMap(snapshot.data);
+    Pointer.currentStudent = currentUser;
+    setState(() {});
   }
 
-  subscripToConnection() {
+  subscribToConnection() {
     Connectivity().onConnectivityChanged.listen(
       (ConnectivityResult result) {
         networkIsActive = AppUtils.getNetworkState(result);
-        if (networkIsActive) {
-          loadUserData();
-        }
         setState(
-          () {},
+          () {
+            if (networkIsActive) {
+              loadUserData();
+            }
+          },
         );
       },
     );
@@ -91,6 +92,9 @@ class _StudientHomePageState extends State<StudientHomePage> {
                       negativeText: 'الغاء',
                       positiveText: 'تاكيد',
                       onPositiveButtonPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      onNegativeButtonPressed: () {
                         SharedPreferences.getInstance().then(
                           (pref) {
                             pref.clear();
@@ -121,10 +125,10 @@ class _StudientHomePageState extends State<StudientHomePage> {
                       ),
                     ),
                     SlideInDown(
-                      child: Pointer.currentUser.name == null
+                      child: Pointer.currentStudent.name == null
                           ? CircularProgressIndicator()
                           : Text(
-                              '${Pointer.currentUser.name ?? ''}',
+                              '${Pointer.currentStudent.name ?? ''}',
                               style: TextStyle(
                                 fontFamily: 'Tajawal',
                                 fontWeight: FontWeight.bold,
@@ -139,7 +143,7 @@ class _StudientHomePageState extends State<StudientHomePage> {
                       ),
                     ),
                     FadeInLeft(
-                      child: _buldCards(
+                      child: _buildCards(
                         imageAsset: 'assets/images/1.jpg',
                         text: 'فحـص الكود',
                         onTap: () {
@@ -158,13 +162,13 @@ class _StudientHomePageState extends State<StudientHomePage> {
                       ),
                     ),
                     FadeInRight(
-                      child: _buldCards(
+                      child: _buildCards(
                         imageAsset: 'assets/images/2.jpg',
                         text: 'مراجعة الغياب',
                         onTap: () {
                           Navigator.of(context).push(
                             PageTransition(
-                              child: AbsenceReview(),
+                              child: StudentAbsenceReview(),
                               type: PageTransitionType.downToUp,
                             ),
                           );
@@ -176,31 +180,16 @@ class _StudientHomePageState extends State<StudientHomePage> {
               ),
             )
           : Container(
-              color: Color(0xffF2F2F2),
               height: ScreenUtil.screenHeight,
               width: ScreenUtil.screenWidth,
               child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Image.asset(
-                      'assets/images/no_internet_connection.jpg',
-                    ),
-                    Text(
-                      'لا يوجد اتصال بالانترنت',
-                      style: TextStyle(
-                        fontSize: 22,
-                      ),
-                    ),
-                  ],
-                ),
+                child: CircularProgressIndicator(),
               ),
             ),
     );
   }
 
-  Widget _buldCards({
+  Widget _buildCards({
     String imageAsset,
     String text,
     Function onTap,

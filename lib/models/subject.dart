@@ -12,7 +12,7 @@ class Subject {
     code,
     currentCount,
     numberOfTimes,
-    numberOfAbsances,
+    numberOfAbsences,
     profName,
     profID,
   }) {

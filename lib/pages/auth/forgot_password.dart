@@ -15,8 +15,24 @@ class ForgotPassword extends StatefulWidget {
 
 class _ForgotPasswordState extends State<ForgotPassword> {
   String username;
-
+  // 0 >> Doctor    ||    1 >> Student
+  int selectedRadio;
   final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+
+    selectedRadio = 0;
+  }
+
+  setSelectedRadio(int val) {
+    setState(
+      () {
+        selectedRadio = val;
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,14 +41,68 @@ class _ForgotPasswordState extends State<ForgotPassword> {
       appBar: buildAppBar(context: context, title: 'نسيت كلمة المرور'),
       body: ListView(
         children: <Widget>[
-          Image.asset(
-            'assets/images/forgot_password.jpg',
-            fit: BoxFit.cover,
-            height: ScreenUtil().setHeight(220),
-            width: ScreenUtil.screenWidth,
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: ScreenUtil().setWidth(16.0),
+              vertical: ScreenUtil().setHeight(18),
+            ),
+            child: Image.asset(
+              'assets/images/forgot_password.jpg',
+              fit: BoxFit.cover,
+              height: ScreenUtil().setHeight(220),
+              width: ScreenUtil.screenWidth,
+            ),
           ),
           SizedBox(
-            height: ScreenUtil().setHeight(40),
+            height: ScreenUtil().setHeight(10),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              GestureDetector(
+                onTap: () {
+                  setSelectedRadio(0);
+                },
+                child: Row(
+                  children: <Widget>[
+                    Text(
+                      'دكتور',
+                      style: TextStyle(color: Colors.black, fontSize: 16),
+                    ),
+                    Radio(
+                      value: 0,
+                      groupValue: selectedRadio,
+                      onChanged: (int val) {
+                        setSelectedRadio(val);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  setSelectedRadio(1);
+                },
+                child: Row(
+                  children: <Widget>[
+                    Text(
+                      'طالب',
+                      style: TextStyle(color: Colors.black, fontSize: 16),
+                    ),
+                    Radio(
+                      value: 1,
+                      groupValue: selectedRadio,
+                      onChanged: (int val) {
+                        setSelectedRadio(val);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: ScreenUtil().setHeight(18),
           ),
           Center(
             child: Text(
@@ -99,13 +169,30 @@ class _ForgotPasswordState extends State<ForgotPassword> {
         return;
       }
 
-      bool isExist = await FirebaseUtils.doesUsernameExist(username: username);
+      bool isExist;
+      String collection;
+      if (selectedRadio == 1) {
+        collection = 'Students';
+        isExist = await FirebaseUtils.doesUsernameExist(
+          username: username,
+          collection: collection,
+        );
+      } else {
+        collection = 'Doctors';
+        isExist = await FirebaseUtils.doesUsernameExist(
+          username: username,
+          collection: collection,
+        );
+      }
+
       if (isExist) {
+        controller.reverse();
         Navigator.of(context).push(
           PageTransition(
             type: PageTransitionType.scale,
             child: UpdatePassword(
               username: username,
+              collection: collection,
             ),
           ),
         );
@@ -124,10 +211,10 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   }) {
     return Padding(
       padding: EdgeInsets.only(
-        left: ScreenUtil().setHeight(14.0),
-        right: ScreenUtil().setHeight(14.0),
+        left: ScreenUtil().setWidth(18.0),
+        right: ScreenUtil().setWidth(18.0),
         bottom: ScreenUtil().setHeight(14.0),
-        top: ScreenUtil().setHeight(18.0),
+        top: ScreenUtil().setHeight(22.0),
       ),
       child: TextFormField(
         cursorColor: Colors.black,
@@ -185,7 +272,6 @@ class _ForgotPasswordState extends State<ForgotPassword> {
               color: Colors.red,
             ),
           ),
-          floatingLabelBehavior: FloatingLabelBehavior.auto,
           hintText: label,
           contentPadding: EdgeInsets.all(
             ScreenUtil().setHeight(12),

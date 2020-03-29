@@ -72,9 +72,8 @@ class _ProcessScanedDataState extends State<ProcessScanedData> {
       if (numberOfHash == 4 && numberOfParenthes == 2) {
         subjectCode = words[2];
         doctorID = words[4];
-        
-        registerStudent();
 
+        registerStudent();
       } else {
         dataIsValid = false;
       }
@@ -92,7 +91,7 @@ class _ProcessScanedDataState extends State<ProcessScanedData> {
         .collection('Subjects')
         .document(subjectCode)
         .collection('Students')
-        .document(Pointer.currentUser.id)
+        .document(Pointer.currentStudent.id)
         .get();
 
     String lastRegesteredDate = snapshot.data['Last attendance'];
@@ -103,7 +102,7 @@ class _ProcessScanedDataState extends State<ProcessScanedData> {
           .collection('Subjects')
           .document(subjectCode)
           .collection('Students')
-          .document(Pointer.currentUser.id)
+          .document(Pointer.currentStudent.id)
           .updateData(
         {
           'numberOfTimes': '${++currentNumberOfTimes}',

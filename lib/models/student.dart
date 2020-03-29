@@ -1,4 +1,4 @@
-class User {
+class Student {
   String name;
   String level;
   String username;
@@ -10,9 +10,8 @@ class User {
   String academicYear;
   String image;
   String id;
-  List subjects;
 
-  User({
+  Student({
     name,
     username,
     password,
@@ -23,7 +22,6 @@ class User {
     semester,
     academicYear,
     id,
-    subjects,
     image,
   }) {
     this.name = name;
@@ -37,7 +35,6 @@ class User {
     this.academicYear = academicYear;
     this.id = id;
     this.image = image;
-    this.subjects = subjects;
   }
 
   Map<String, dynamic> toMap() {
@@ -51,14 +48,13 @@ class User {
       'phone': this.phone,
       'semester': this.semester,
       'academicYear': this.academicYear,
-      'subjects': this.subjects,
       'image': this.image,
       'id': this.id,
     };
   }
 
-  factory User.fromMap(Map map) {
-    return User(
+  factory Student.fromMap(Map map) {
+    return Student(
       name: map['name'],
       password: map['password'],
       username: map['username'],
@@ -70,7 +66,6 @@ class User {
       academicYear: map['academicYear'],
       image: map['image'],
       id: map['id'],
-      subjects: List.from(map['subjects']),
     );
   }
 
@@ -117,8 +112,4 @@ class User {
   String get getAcademicYear => academicYear;
 
   set setAcademicYear(String academicYear) => this.academicYear = academicYear;
-
-  List get getSubjects => subjects;
-
-  set setSubjects(List subjects) => this.subjects = subjects;
 }

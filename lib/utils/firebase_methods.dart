@@ -57,12 +57,11 @@ class FirebaseUtils {
   }
 
   // method to check if ssn is exist or not
-  static Future<DocumentSnapshot> getCurrentUserData({
-    @required String username,
-  }) async {
+  static Future<DocumentSnapshot> getCurrentUserData(
+      {@required String username, @required String collection}) async {
     try {
       var querySnapshot =
-          await _firestore.collection('Students').document(username).get();
+          await _firestore.collection('$collection').document(username).get();
 
       return querySnapshot;
     } catch (e) {
@@ -70,9 +69,12 @@ class FirebaseUtils {
     }
   }
 
-  static Future<bool> doesUsernameExist({@required String username}) async {
+  static Future<bool> doesUsernameExist(
+      {@required String username, @required String collection}) async {
     bool exist = false;
-    QuerySnapshot qs = await _firestore.collection('Students').getDocuments();
+    print(collection);
+    QuerySnapshot qs =
+        await _firestore.collection('$collection').getDocuments();
     qs.documents.forEach(
       (DocumentSnapshot snap) {
         if (snap.documentID == username) {
@@ -128,7 +130,7 @@ class FirebaseUtils {
     return await _auth.currentUser();
   }
 
-  // get all data in a specefic collection
+  // get all data in a specific collection
   static Future<List<DocumentSnapshot>> getAllData({
     @required String collectionName,
   }) async {

@@ -9,8 +9,10 @@ import 'package:progress_indicator_button/progress_button.dart';
 
 class UpdatePassword extends StatefulWidget {
   final String username;
+  final String collection;
 
-  const UpdatePassword({Key key, this.username}) : super(key: key);
+  const UpdatePassword({Key key, this.username, this.collection})
+      : super(key: key);
 
   @override
   _UpdatePasswordState createState() => _UpdatePasswordState();
@@ -108,7 +110,7 @@ class _UpdatePasswordState extends State<UpdatePassword> {
       }
 
       await Firestore.instance
-          .collection('Students')
+          .collection(widget.collection)
           .document(widget.username)
           .updateData(
         {
@@ -194,7 +196,6 @@ class _UpdatePasswordState extends State<UpdatePassword> {
               color: Colors.red,
             ),
           ),
-          floatingLabelBehavior: FloatingLabelBehavior.auto,
           hintText: label,
           contentPadding: EdgeInsets.all(
             ScreenUtil().setHeight(12),

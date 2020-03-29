@@ -51,7 +51,6 @@ class MyDropDownFormField extends FormField<dynamic> {
                 children: <Widget>[
                   InputDecorator(
                     decoration: InputDecoration(
-                      floatingLabelBehavior: FloatingLabelBehavior.always,
                       focusedBorder: border,
                       enabledBorder: border,
                       contentPadding: EdgeInsets.fromLTRB(12, 12, 8, 0),
