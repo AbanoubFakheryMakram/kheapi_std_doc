@@ -12,7 +12,7 @@ class ProcessScanedData extends StatefulWidget {
   // ! Data must be like this  ( - subjectID - doctorID - date - )
   // ? starting and ending with parenthes ()
   // ? has space between each character
-  // ? has 4 dash ( - )
+  // ? has 3 dash ( - )
   // ? date in format dd/mm/yyyy or mm/dd/yyyy
 
   const ProcessScanedData({Key key, this.data}) : super(key: key);
@@ -84,7 +84,7 @@ class _ProcessScanedDataState extends State<ProcessScanedData> {
 
   void registerStudent() async {
     var now = new DateTime.now();
-    var formatter = new DateFormat('dd/mm/yyyy');
+    var formatter = new DateFormat('dd/MM/yyyy');
     String formatted = formatter.format(now);
 
     DocumentSnapshot snapshot = await Firestore.instance

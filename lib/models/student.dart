@@ -1,7 +1,6 @@
 class Student {
   String name;
   String level;
-  String username;
   String password;
   String ssn;
   String email;
@@ -25,7 +24,6 @@ class Student {
     image,
   }) {
     this.name = name;
-    this.username = username;
     this.password = password;
     this.level = level;
     this.ssn = ssn;
@@ -40,7 +38,6 @@ class Student {
   Map<String, dynamic> toMap() {
     return {
       'name': this.name,
-      'username': this.username,
       'password': this.password,
       'level': this.level,
       'ssn': this.ssn,
@@ -57,7 +54,6 @@ class Student {
     return Student(
       name: map['name'],
       password: map['password'],
-      username: map['username'],
       level: map['level'],
       ssn: map['ssn'],
       email: map['email'],
@@ -84,10 +80,6 @@ class Student {
   String get getLevel => level;
 
   set setLevel(String level) => this.level = level;
-
-  String get getUsername => username;
-
-  set setUsername(String username) => this.username = username;
 
   String get getPassword => password;
 

@@ -141,14 +141,13 @@ class _DoctorAbsenceDetailsState extends State<DoctorAbsenceDetails> {
   }
 
   void buildRows() {
+    print(widget.std.attendenc);
     for (int i = 0; i < int.parse(widget.std.currentCount); i++) {
       rows.add(
         DataRow(
           cells: [
             DataCell(
-              widget.std.attendenc.length != i &&
-                      widget.std.attendenc[i] != null &&
-                      widget.std.attendenc[i] == '${(i + 1)}'
+              widget.std.attendenc.contains('${i + 1}')
                   ? Icon(
                       Icons.check,
                       color: Colors.green,

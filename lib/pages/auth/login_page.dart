@@ -394,9 +394,10 @@ class _LoginPageState extends State<LoginPage> {
       if (isExist) {
         DocumentSnapshot snapshot = await FirebaseUtils.getCurrentUserData(
           username: username,
-          collection: selectedRadio == 1 ? 'Studens' : 'Doctors',
+          collection: selectedRadio == 1 ? 'Students' : 'Doctors',
         );
 
+        print(snapshot.data);
         var user;
         if (selectedRadio == 1) {
           user = Student.fromMap(snapshot.data);

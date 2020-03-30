@@ -83,7 +83,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
               actions: <Widget>[
                 IconButton(
                   icon: Icon(
-                    Icons.error_outline,
+                    Icons.exit_to_app,
                   ),
                   onPressed: () {
                     AppUtils.showDialog(

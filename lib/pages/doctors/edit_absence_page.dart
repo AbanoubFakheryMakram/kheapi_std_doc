@@ -27,6 +27,7 @@ class _EditAbsencePageState extends State<EditAbsencePage> {
   List<Map<String, String>> _students = [];
   List<Map<String, String>> _courses = [];
   DoctorAbsenceModel temp;
+
   // 0 >> Absence    ||    1 >> Exist
   int selectedRadio;
 
@@ -299,10 +300,11 @@ class _EditAbsencePageState extends State<EditAbsencePage> {
                         child: Container(
                           height: ScreenUtil().setHeight(48),
                           margin: EdgeInsets.symmetric(
-                            horizontal: ScreenUtil().setWidth(20),
+                            horizontal: ScreenUtil().setWidth(38),
                             vertical: ScreenUtil().setHeight(18),
                           ),
                           child: ProgressButton(
+                            borderRadius: BorderRadius.circular(30),
                             color: Const.mainColor,
                             child: Text(
                               'تعديل',
@@ -420,14 +422,30 @@ class _EditAbsencePageState extends State<EditAbsencePage> {
     if (selectedRadio == 0) {
       await fir.updateData(
         {
-          'attendenc': FieldValue.arrayRemove(['${course}']),
+          'attendenc': FieldValue.arrayRemove(['$course']),
           'numberOfTimes': '${--numberOfTimes}',
         },
       );
     } else {
+      var selectedStd = students.firstWhere((std) => std.std_id == student);
+      if (numberOfTimes >= int.parse(selectedStd.currentCount)) {
+        AppUtils.showDialog(
+          context: context,
+          title: 'ملاحظة',
+          negativeText: null,
+          positiveText: 'تم',
+          onPositiveButtonPressed: () {
+            Navigator.of(context).pop();
+          },
+          contentText: 'الطالب حاضر جميع المحاضرات بالفعل',
+        );
+
+        controller.reverse();
+        return;
+      }
       await fir.updateData(
         {
-          'attendenc': FieldValue.arrayUnion(['${course}']),
+          'attendenc': FieldValue.arrayUnion(['$course']),
           'numberOfTimes': '${++numberOfTimes}',
         },
       );

@@ -120,7 +120,7 @@ class _StudentAbsenceReviewState extends State<StudentAbsenceReview> {
                       'assets/images/2.jpg',
                       fit: BoxFit.cover,
                       height: ScreenUtil().setHeight(
-                        130,
+                        180,
                       ),
                     ),
                     SizedBox(

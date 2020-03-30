@@ -42,20 +42,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'غيابي',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        home: DoctorHomePage(
-          username: '7000551101',
-        ));
-  }
-}
-
-/*
-*
-* username == ''
+      title: 'غيابي',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: username == ''
           ? LoginPage()
           : type == '1'
               ? StudentHomePage(
@@ -63,4 +55,7 @@ class MyApp extends StatelessWidget {
                 )
               : DoctorHomePage(
                   username: username,
-                ),*/
+                ),
+    );
+  }
+}

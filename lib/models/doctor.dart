@@ -1,6 +1,5 @@
 class Doctor {
   String name;
-  String username;
   String password;
   String ssn;
   String email;
@@ -11,7 +10,6 @@ class Doctor {
 
   Doctor({
     String name,
-    String username,
     String password,
     String ssn,
     String email,
@@ -21,7 +19,6 @@ class Doctor {
     List<String> subjects,
   }) {
     this.name = name;
-    this.username = username;
     this.password = password;
     this.ssn = ssn;
     this.email = email;
@@ -34,7 +31,6 @@ class Doctor {
   Map<String, dynamic> toMap() {
     return {
       'name': this.name,
-      'username': this.username,
       'password': this.password,
       'ssn': this.ssn,
       'email': this.email,
@@ -49,7 +45,6 @@ class Doctor {
     return Doctor(
       name: map['name'],
       password: map['password'],
-      username: map['username'],
       ssn: map['ssn'],
       email: map['email'],
       phone: map['phone'],

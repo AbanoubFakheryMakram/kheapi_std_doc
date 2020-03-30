@@ -9,6 +9,7 @@ import 'package:kheabia/models/pointer.dart';
 import 'package:kheabia/pages/auth/login_page.dart';
 import 'package:kheabia/pages/doctors/doctor_absance_review.dart';
 import 'package:kheabia/pages/doctors/edit_absence_page.dart';
+import 'package:kheabia/pages/doctors/select_course_to_generate.dart';
 import 'package:kheabia/pages/studients/scan_code_page.dart';
 import 'package:kheabia/utils/app_utils.dart';
 import 'package:kheabia/utils/const.dart';
@@ -85,7 +86,7 @@ class _DoctorHomePageState extends State<DoctorHomePage> {
               actions: <Widget>[
                 IconButton(
                   icon: Icon(
-                    Icons.error_outline,
+                    Icons.exit_to_app,
                   ),
                   onPressed: () {
                     AppUtils.showDialog(
@@ -153,7 +154,7 @@ class _DoctorHomePageState extends State<DoctorHomePage> {
                         onTap: () {
                           Navigator.of(context).push(
                             PageTransition(
-                              child: ScanCodePage(),
+                              child: SelectCourseToGenerate(),
                               type: PageTransitionType.downToUp,
                             ),
                           );
