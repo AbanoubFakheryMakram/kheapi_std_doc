@@ -1,8 +1,5 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -14,18 +11,6 @@ import 'package:flutter/material.dart';
 class FirebaseUtils {
   static final FirebaseAuth _auth = FirebaseAuth.instance;
   static final Firestore _firestore = Firestore.instance;
-
-  static Future<bool> uploadDoctorProfileImageToFirebaseStorage(
-    StorageReference storage,
-    File imageFile,
-  ) async {
-    storage.putFile(imageFile);
-    return true;
-  }
-
-  static Future<String> downloadImageURL(StorageReference storage) async {
-    return await storage.getDownloadURL();
-  }
 
   // method to save data in a collection
   static saveData({

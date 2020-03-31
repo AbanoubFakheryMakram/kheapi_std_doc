@@ -54,99 +54,108 @@ class _ForgotPasswordState extends State<ForgotPassword> {
             ),
           ),
           SizedBox(
-            height: ScreenUtil().setHeight(10),
+            height: ScreenUtil().setHeight(20),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              GestureDetector(
-                onTap: () {
-                  setSelectedRadio(0);
-                },
-                child: Row(
-                  children: <Widget>[
-                    Text(
-                      'دكتور',
-                      style: TextStyle(color: Colors.black, fontSize: 16),
-                    ),
-                    Radio(
-                      value: 0,
-                      groupValue: selectedRadio,
-                      onChanged: (int val) {
-                        setSelectedRadio(val);
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  setSelectedRadio(1);
-                },
-                child: Row(
-                  children: <Widget>[
-                    Text(
-                      'طالب',
-                      style: TextStyle(color: Colors.black, fontSize: 16),
-                    ),
-                    Radio(
-                      value: 1,
-                      groupValue: selectedRadio,
-                      onChanged: (int val) {
-                        setSelectedRadio(val);
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          SizedBox(
-            height: ScreenUtil().setHeight(18),
-          ),
-          Center(
-            child: Text(
-              'قم بادخال اسم المستحدم',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontFamily: 'Tajawal',
-                fontSize: 19,
-              ),
+
+          Text(
+            'من فضلك تواصل مع المسئول',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 22,
             ),
-          ),
-          Form(
-            key: _formKey,
-            child: _buildTextInputFeild(
-              label: 'اسم المستحدم',
-            ),
-          ),
-          Container(
-            height: ScreenUtil().setWidth(48),
-            margin: EdgeInsets.only(
-              left: ScreenUtil().setWidth(20),
-              right: ScreenUtil().setWidth(20),
-              bottom: ScreenUtil().setWidth(30),
-              top: ScreenUtil().setHeight(18.0),
-            ),
-            child: ProgressButton(
-              color: Const.mainColor,
-              progressIndicatorColor: Colors.white,
-              borderRadius: BorderRadius.all(
-                Radius.circular(8),
-              ),
-              child: Text(
-                "بحث",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 19,
-                  fontFamily: 'Tajawal',
-                ),
-              ),
-              onPressed: (AnimationController controller) async {
-                processData(controller);
-              },
-            ),
-          ),
+          )
+//          Row(
+//            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//            children: <Widget>[
+//              GestureDetector(
+//                onTap: () {
+//                  setSelectedRadio(0);
+//                },
+//                child: Row(
+//                  children: <Widget>[
+//                    Text(
+//                      'دكتور',
+//                      style: TextStyle(color: Colors.black, fontSize: 16),
+//                    ),
+//                    Radio(
+//                      value: 0,
+//                      groupValue: selectedRadio,
+//                      onChanged: (int val) {
+//                        setSelectedRadio(val);
+//                      },
+//                    ),
+//                  ],
+//                ),
+//              ),
+//              GestureDetector(
+//                onTap: () {
+//                  setSelectedRadio(1);
+//                },
+//                child: Row(
+//                  children: <Widget>[
+//                    Text(
+//                      'طالب',
+//                      style: TextStyle(color: Colors.black, fontSize: 16),
+//                    ),
+//                    Radio(
+//                      value: 1,
+//                      groupValue: selectedRadio,
+//                      onChanged: (int val) {
+//                        setSelectedRadio(val);
+//                      },
+//                    ),
+//                  ],
+//                ),
+//              ),
+//            ],
+//          ),
+//          SizedBox(
+//            height: ScreenUtil().setHeight(18),
+//          ),
+//          Center(
+//            child: Text(
+//              'قم بادخال اسم المستحدم',
+//              textAlign: TextAlign.center,
+//              style: TextStyle(
+//                fontFamily: 'Tajawal',
+//                fontSize: 19,
+//              ),
+//            ),
+//          ),
+//          Form(
+//            key: _formKey,
+//            child: _buildTextInputFeild(
+//              label: 'اسم المستحدم',
+//            ),
+//          ),
+//          Container(
+//            height: ScreenUtil().setWidth(48),
+//            margin: EdgeInsets.only(
+//              left: ScreenUtil().setWidth(20),
+//              right: ScreenUtil().setWidth(20),
+//              bottom: ScreenUtil().setWidth(30),
+//              top: ScreenUtil().setHeight(18.0),
+//            ),
+//            child: ProgressButton(
+//              color: Const.mainColor,
+//              progressIndicatorColor: Colors.white,
+//              borderRadius: BorderRadius.all(
+//                Radius.circular(8),
+//              ),
+//              child: Text(
+//                "بحث",
+//                style: TextStyle(
+//                  color: Colors.white,
+//                  fontSize: 19,
+//                  fontFamily: 'Tajawal',
+//                ),
+//              ),
+//              onPressed: (AnimationController controller) async {
+//                processData(controller);
+//              },
+//            ),
+//          ),
         ],
       ),
     );

@@ -1,14 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 import 'package:kheabia/animations/fade_animation.dart';
 import 'package:kheabia/models/pointer.dart';
 import 'package:kheabia/models/subject.dart';
 import 'package:kheabia/pages/doctors/generate_code.dart';
+import 'package:kheabia/providers/network_provider.dart';
 import 'package:kheabia/utils/app_utils.dart';
 import 'package:kheabia/utils/const.dart';
 import 'package:kheabia/widgets/my_drop_down_form_field.dart';
 import 'package:progress_indicator_button/progress_button.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SelectCourseToGenerate extends StatefulWidget {
   @override
@@ -19,21 +23,22 @@ class _SelectCourseToGenerateState extends State<SelectCourseToGenerate> {
   List<Map<String, String>> subjects = [];
   List<Subject> subjectsData = [];
   final Firestore _firestore = Firestore.instance;
-  bool networkIsActive;
   String subject = '';
+  List selectedCourses = [];
 
   void getDoctorSubjects() async {
+    subjects.clear();
     QuerySnapshot querySnapshot = await _firestore
         .collection('Subjects')
         .getDocuments(); // fetch all subjects
 
+    print(querySnapshot.documents.length);
     for (int i = 0; i < querySnapshot.documents.length; i++) {
       // move inside each subject
       DocumentSnapshot currentSubject = querySnapshot.documents[i];
 
-      if (Pointer.currentDoctor.subjects.contains(
-        currentSubject.data['code'],
-      )) {
+      if (Pointer.currentDoctor.subjects
+          .contains(currentSubject.data['code'])) {
         Subject subject = Subject(
           name: currentSubject.data['name'],
           code: currentSubject.data['code'],
@@ -42,39 +47,32 @@ class _SelectCourseToGenerateState extends State<SelectCourseToGenerate> {
           profName: currentSubject.data['profName'],
         );
 
-        subjectsData.add(subject);
-        subjects.add(
-          {
-            'display':
-                '   ${currentSubject.data['code']}                  ${currentSubject.data['name']}',
-            'value': currentSubject.data['code'],
-          },
-        );
+        if (!subjectsData.contains(subject)) {
+          subjectsData.add(subject);
+          subjects.add(
+            {
+              'display':
+                  '   ${currentSubject.data['code']}                  ${currentSubject.data['name']}',
+              'value': currentSubject.data['code'],
+            },
+          );
+        }
       }
     }
 
     setState(() {});
   }
 
-  subscripToConnection() async {
-    networkIsActive = await AppUtils.getConnectionState();
-    if (networkIsActive) {
-    } else {
-      networkIsActive = false;
-    }
-    setState(() {});
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    getDoctorSubjects();
-    subscripToConnection();
-  }
-
   @override
   Widget build(BuildContext context) {
+    var networkProvider = Provider.of<NetworkProvider>(context);
+
+    if (networkProvider.hasNetworkConnection != null &&
+        networkProvider.hasNetworkConnection &&
+        subjects.isEmpty) {
+      getDoctorSubjects();
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Const.mainColor,
@@ -97,11 +95,11 @@ class _SelectCourseToGenerateState extends State<SelectCourseToGenerate> {
           ),
         ),
       ),
-      body: networkIsActive == null
+      body: networkProvider.hasNetworkConnection == null
           ? Center(
               child: CircularProgressIndicator(),
             )
-          : networkIsActive == true
+          : networkProvider.hasNetworkConnection
               ? SingleChildScrollView(
                   physics: BouncingScrollPhysics(),
                   child: Column(
@@ -178,7 +176,7 @@ class _SelectCourseToGenerateState extends State<SelectCourseToGenerate> {
                                 fontFamily: 'Tajawal',
                               ),
                             ),
-                            onPressed: (AnimationController controller) {
+                            onPressed: (AnimationController controller) async {
                               if (subjects == null ||
                                   subjects.length == 0 ||
                                   subjects.isEmpty) {
@@ -213,25 +211,112 @@ class _SelectCourseToGenerateState extends State<SelectCourseToGenerate> {
                                 return;
                               }
 
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => GenerateCode(
-                                    course: subject,
-                                  ),
-                                ),
+                              controller.forward();
+
+                              SharedPreferences.getInstance().then(
+                                (pref) async {
+                                  String lastDate =
+                                      pref.getString('lastLecDate') ?? '';
+
+                                  // get current date in a format like 27/5/1998
+                                  var now = new DateTime.now();
+                                  var formatter = new DateFormat('dd/MM/yyyy');
+                                  String formatted = formatter.format(now);
+
+                                  if (lastDate == formatted) {
+
+                                    selectedCourses =
+                                        pref.getStringList('selectedCourses') ??
+                                            [];
+
+                                    if (selectedCourses.contains(subject)) {
+                                      AppUtils.showDialog(
+                                        context: context,
+                                        title: 'تحذير',
+                                        negativeText: '',
+                                        onNegativeButtonPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        positiveText: 'حسنا',
+                                        onPositiveButtonPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        contentText:
+                                            'لقد قمت بانشاء كود بالفعل ومتاح لك انشاء كود مرة واحدة فقط لكل محاضرة في اليوم',
+                                      );
+
+                                      controller.reverse();
+                                      return;
+                                    }
+                                  }
+
+                                  selectedCourses.add(subject);
+                                  pref.setString('lastLecDate', formatted);
+                                  pref.setStringList(
+                                    'selectedCourses',
+                                    selectedCourses,
+                                  );
+
+                                  DocumentSnapshot snapshot = await Firestore
+                                      .instance
+                                      .collection('Subjects')
+                                      .document(subject)
+                                      .get();
+
+                                  int currentCount =
+                                      int.parse(snapshot.data['currentCount']);
+
+                                  await Firestore.instance
+                                      .collection('Subjects')
+                                      .document(subject)
+                                      .updateData(
+                                    {
+                                      'currentCount': '${++currentCount}',
+                                    },
+                                  );
+
+                                  controller.reverse();
+
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => GenerateCode(
+                                        course: subject,
+                                      ),
+                                    ),
+                                  );
+                                },
                               );
                             },
                           ),
                         ),
                       ),
+                      MyFadeAnimation(
+                        delayinseconds: 2,
+                        child: Text(
+                          'متاح لك انشاء كود مرة واحدة فقط لكل محاضرة في اليوم',
+                          textAlign: TextAlign.center,
+                        ),
+                      )
                     ],
                   ),
                 )
               : Container(
-                  height: ScreenUtil.screenHeight,
-                  width: ScreenUtil.screenWidth,
-                  child: Center(
-                    child: CircularProgressIndicator(),
+                  color: Color(0xffF2F2F2),
+                  height: MediaQuery.of(context).size.height,
+                  child: Column(
+                    children: <Widget>[
+                      Image.asset(
+                        'assets/images/no_internet_connection.jpg',
+                      ),
+                      Text(
+                        'لا يوجد اتصال بالانترنت',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 22,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
     );
@@ -239,7 +324,6 @@ class _SelectCourseToGenerateState extends State<SelectCourseToGenerate> {
 
   void handleSubjectSelection(value) {
     subject = value;
-    print(subject);
     setState(() {});
   }
 }

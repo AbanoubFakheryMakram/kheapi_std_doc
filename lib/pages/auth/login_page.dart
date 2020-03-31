@@ -296,7 +296,9 @@ class _LoginPageState extends State<LoginPage> {
           isPassword ? userPassword = input : username = input;
         },
         textAlign: TextAlign.right,
-        keyboardType: TextInputType.text,
+        keyboardType: hintText == 'اسم المستخدم'
+            ? TextInputType.number
+            : TextInputType.text,
         decoration: InputDecoration(
           border: InputBorder.none,
           fillColor: Const.mainColor,

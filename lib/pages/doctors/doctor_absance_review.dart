@@ -5,9 +5,10 @@ import 'package:kheabia/animations/fade_animation.dart';
 import 'package:kheabia/models/doctor_absence_model.dart';
 import 'package:kheabia/models/pointer.dart';
 import 'package:kheabia/models/subject.dart';
-import 'package:kheabia/utils/app_utils.dart';
+import 'package:kheabia/providers/network_provider.dart';
 import 'package:kheabia/utils/const.dart';
 import 'package:kheabia/widgets/my_drop_down_form_field.dart';
+import 'package:provider/provider.dart';
 
 import 'absence_details.dart';
 
@@ -21,28 +22,19 @@ class _DoctorAbsenceReviewState extends State<DoctorAbsenceReview> {
   List<DoctorAbsenceModel> students = List();
   List<Subject> subjectsData = [];
   final Firestore _firestore = Firestore.instance;
-  bool networkIsActive;
   String subject = '';
 
   @override
-  void initState() {
-    super.initState();
-
-    getDoctorSubjects();
-    subscripToConnection();
-  }
-
-  subscripToConnection() async {
-    networkIsActive = await AppUtils.getConnectionState();
-    if (networkIsActive) {
-    } else {
-      networkIsActive = false;
-    }
-    setState(() {});
-  }
-
-  @override
   Widget build(BuildContext context) {
+    var networkProvider = Provider.of<NetworkProvider>(context);
+
+    if (networkProvider.hasNetworkConnection != null &&
+        networkProvider.hasNetworkConnection) {
+      if (subjects.isEmpty) {
+        getDoctorSubjects();
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Const.mainColor,
@@ -65,11 +57,11 @@ class _DoctorAbsenceReviewState extends State<DoctorAbsenceReview> {
           ),
         ),
       ),
-      body: networkIsActive == null
+      body: networkProvider.hasNetworkConnection == null
           ? Center(
               child: CircularProgressIndicator(),
             )
-          : networkIsActive == true
+          : networkProvider.hasNetworkConnection
               ? Column(
                   children: <Widget>[
                     Hero(
@@ -88,40 +80,44 @@ class _DoctorAbsenceReviewState extends State<DoctorAbsenceReview> {
                         13,
                       ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: ScreenUtil().setWidth(16.0),
-                        vertical: ScreenUtil().setHeight(12),
-                      ),
-                      child: MyFadeAnimation(
-                        delayinseconds: 1,
-                        child: MyDropDownFormField(
-                          titleStyle: TextStyle(
-                            color: Const.mainColor,
-                          ),
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Const.mainColor,
+                    subjects.isEmpty
+                        ? Center(
+                            child: CircularProgressIndicator(),
+                          )
+                        : Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: ScreenUtil().setWidth(16.0),
+                              vertical: ScreenUtil().setHeight(12),
+                            ),
+                            child: MyFadeAnimation(
+                              delayinseconds: 1,
+                              child: MyDropDownFormField(
+                                titleStyle: TextStyle(
+                                  color: Const.mainColor,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Const.mainColor,
+                                  ),
+                                ),
+                                titleText: 'المواد',
+                                hintText: 'اختر المادة',
+                                itemStyle: TextStyle(
+                                  color: Colors.black,
+                                ),
+                                value: subject,
+                                onSaved: (value) {
+                                  handleSelection(value);
+                                },
+                                onChanged: (value) {
+                                  handleSelection(value);
+                                },
+                                dataSource: subjects,
+                                textField: 'display',
+                                valueField: 'value',
+                              ),
                             ),
                           ),
-                          titleText: 'المواد',
-                          hintText: 'اختر المادة',
-                          itemStyle: TextStyle(
-                            color: Colors.black,
-                          ),
-                          value: subject,
-                          onSaved: (value) {
-                            handleSelection(value);
-                          },
-                          onChanged: (value) {
-                            handleSelection(value);
-                          },
-                          dataSource: subjects,
-                          textField: 'display',
-                          valueField: 'value',
-                        ),
-                      ),
-                    ),
                     Expanded(
                       child: ListView.separated(
                         itemBuilder: (context, index) {
@@ -169,41 +165,39 @@ class _DoctorAbsenceReviewState extends State<DoctorAbsenceReview> {
                 )
               : Container(
                   color: Color(0xffF2F2F2),
-                  height: ScreenUtil.screenHeight,
-                  width: ScreenUtil.screenWidth,
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        Image.asset(
-                          'assets/images/no_internet_connection.jpg',
+                  height: MediaQuery.of(context).size.height,
+                  child: Column(
+                    children: <Widget>[
+                      Image.asset(
+                        'assets/images/no_internet_connection.jpg',
+                      ),
+                      Text(
+                        'لا يوجد اتصال بالانترنت',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 22,
                         ),
-                        Text(
-                          'لا يوجد اتصال بالانترنت',
-                          style: TextStyle(
-                            fontSize: 22,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
     );
   }
 
   void getDoctorSubjects() async {
+    subjects.clear();
     QuerySnapshot querySnapshot = await _firestore
         .collection('Subjects')
         .getDocuments(); // fetch all subjects
 
+    print(querySnapshot.documents.length);
     for (int i = 0; i < querySnapshot.documents.length; i++) {
       // move inside each subject
       DocumentSnapshot currentSubject = querySnapshot.documents[i];
 
-      if (Pointer.currentDoctor.subjects.contains(
-        currentSubject.data['code'],
-      )) {
+      if (Pointer.currentDoctor.subjects
+          .contains(currentSubject.data['code'])) {
         Subject subject = Subject(
           name: currentSubject.data['name'],
           code: currentSubject.data['code'],
@@ -212,14 +206,16 @@ class _DoctorAbsenceReviewState extends State<DoctorAbsenceReview> {
           profName: currentSubject.data['profName'],
         );
 
-        subjectsData.add(subject);
-        subjects.add(
-          {
-            'display':
-                '   ${currentSubject.data['code']}                  ${currentSubject.data['name']}',
-            'value': currentSubject.data['code'],
-          },
-        );
+        if (!subjectsData.contains(subject)) {
+          subjectsData.add(subject);
+          subjects.add(
+            {
+              'display':
+                  '   ${currentSubject.data['code']}                  ${currentSubject.data['name']}',
+              'value': currentSubject.data['code'],
+            },
+          );
+        }
       }
     }
 

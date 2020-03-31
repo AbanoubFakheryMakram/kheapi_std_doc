@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kheabia/models/pointer.dart';
-import 'package:kheabia/pages/doctors/analysis_data.dart';
-import 'package:kheabia/utils/const.dart';
-import 'package:page_transition/page_transition.dart';
-import 'package:twitter_qr_scanner/QrScannerOverlayShape.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:twitter_qr_scanner/twitter_qr_scanner.dart';
 
 class GenerateCode extends StatefulWidget {
@@ -29,54 +26,36 @@ class _GenerateCodeState extends State<GenerateCode> {
     // ! Data must be like this  ( - subjectID - doctorID - date - )
     // ? starting and ending with parentheses ()
     // ? has space between each character
-    // ? has 3 dash ( - )
+    // ? has 4 dash ( - )
+    // ? has 2 parentheses
     // ? date in format dd/mm/yyyy or mm/dd/yyyy
 
     var now = new DateTime.now();
     var formatter = new DateFormat('dd/MM/yyyy');
     String formatted = formatter.format(now);
     print(formatted); // something like 20/04/2020
-    data = '( - ${widget.course} - ${Pointer.currentDoctor.id} - $formatted )';
+    data =
+        '( - ${widget.course} - ${Pointer.currentDoctor.id} - $formatted - )';
     print('>>>>>>>>>>>>   $data');
+  }
+
+  @override
+  void dispose() {
+    controller?.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: QRView(
-        key: qrKey,
-        initialMode: QRMode.VIEWER,
-        switchButtonColor: Const.mainColor,
-        overlay: QrScannerOverlayShape(
-          borderRadius: 10,
-          borderColor: Const.mainColor,
-          borderLength: 120,
-          borderWidth: 2,
-          cutOutSize: 265,
+      body: Center(
+        child: QrImage(
+          data: data,
+          version: QrVersions.auto,
+          size: MediaQuery.of(context).size.width / 1.5,
+          gapless: true,
         ),
-        onQRViewCreated: _onQRViewCreate,
-        data: data,
       ),
-    );
-  }
-
-  void _onQRViewCreate(QRViewController controller) {
-    this.controller = controller;
-    controller.scannedDataStream.listen(
-      (scanData) {
-        setState(
-          () {
-            Navigator.of(context).pushReplacement(
-              PageTransition(
-                child: AnalysisData(
-                  data: scanData,
-                ),
-                type: PageTransitionType.scale,
-              ),
-            );
-          },
-        );
-      },
     );
   }
 }

@@ -1,6 +1,5 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:kheabia/animations/splash_tap.dart';
@@ -10,11 +9,12 @@ import 'package:kheabia/pages/auth/login_page.dart';
 import 'package:kheabia/pages/doctors/doctor_absance_review.dart';
 import 'package:kheabia/pages/doctors/edit_absence_page.dart';
 import 'package:kheabia/pages/doctors/select_course_to_generate.dart';
-import 'package:kheabia/pages/studients/scan_code_page.dart';
+import 'package:kheabia/providers/network_provider.dart';
 import 'package:kheabia/utils/app_utils.dart';
 import 'package:kheabia/utils/const.dart';
 import 'package:kheabia/utils/firebase_methods.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DoctorHomePage extends StatefulWidget {
@@ -27,14 +27,6 @@ class DoctorHomePage extends StatefulWidget {
 }
 
 class _DoctorHomePageState extends State<DoctorHomePage> {
-  bool networkIsActive = true;
-
-  @override
-  void initState() {
-    super.initState();
-
-    subscribToConnection();
-  }
 
   void loadUserData() async {
     DocumentSnapshot snapshot = await FirebaseUtils.getCurrentUserData(
@@ -47,21 +39,6 @@ class _DoctorHomePageState extends State<DoctorHomePage> {
     setState(() {});
   }
 
-  subscribToConnection() {
-    Connectivity().onConnectivityChanged.listen(
-      (ConnectivityResult result) {
-        networkIsActive = AppUtils.getNetworkState(result);
-        setState(
-          () {
-            if (networkIsActive) {
-              loadUserData();
-            }
-          },
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(
@@ -70,146 +47,168 @@ class _DoctorHomePageState extends State<DoctorHomePage> {
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
     );
+
+    var networkProvider = Provider.of<NetworkProvider>(context);
+
+    if (networkProvider.hasNetworkConnection != null &&
+        networkProvider.hasNetworkConnection) {
+      loadUserData();
+    }
+
     return Scaffold(
-      appBar: networkIsActive
-          ? AppBar(
-              backgroundColor: Const.mainColor,
-              title: Text(
-                'غيابي',
-                style: TextStyle(
-                  fontFamily: 'Tajawal',
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
-              ),
-              actions: <Widget>[
-                IconButton(
-                  icon: Icon(
-                    Icons.exit_to_app,
-                  ),
-                  onPressed: () {
-                    AppUtils.showDialog(
-                      context: context,
-                      title: 'تسجيل الخروج',
-                      negativeText: 'الغاء',
-                      positiveText: 'تاكيد',
-                      onPositiveButtonPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      onNegativeButtonPressed: () {
-                        SharedPreferences.getInstance().then(
-                          (pref) {
-                            pref.clear();
-                            Navigator.of(context).pop();
-                            Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                builder: (_) => LoginPage(),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                      contentText: 'هل تريد تسجيل الخروج؟',
-                    );
-                  },
-                ),
-              ],
-            )
-          : null,
-      body: networkIsActive
+      appBar: AppBar(
+        backgroundColor: Const.mainColor,
+        title: Text(
+          'غيابي',
+          style: TextStyle(
+            fontFamily: 'Tajawal',
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            fontSize: 24,
+          ),
+        ),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(
+              Icons.exit_to_app,
+            ),
+            onPressed: () {
+              AppUtils.showDialog(
+                context: context,
+                title: 'تسجيل الخروج',
+                negativeText: 'الغاء',
+                positiveText: 'تاكيد',
+                onPositiveButtonPressed: () {
+                  Navigator.of(context).pop();
+                },
+                onNegativeButtonPressed: () {
+                  SharedPreferences.getInstance().then(
+                    (pref) {
+                      pref.clear();
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (_) => LoginPage(),
+                        ),
+                      );
+                    },
+                  );
+                },
+                contentText: 'هل تريد تسجيل الخروج؟',
+              );
+            },
+          ),
+        ],
+      ),
+      body: networkProvider.hasNetworkConnection == null
           ? Center(
-              child: SingleChildScrollView(
-                physics: BouncingScrollPhysics(),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    SizedBox(
-                      height: ScreenUtil().setHeight(
-                        20,
-                      ),
+              child: CircularProgressIndicator(),
+            )
+          : networkProvider.hasNetworkConnection
+              ? Center(
+                  child: SingleChildScrollView(
+                    physics: BouncingScrollPhysics(),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        SizedBox(
+                          height: ScreenUtil().setHeight(
+                            20,
+                          ),
+                        ),
+                        SlideInDown(
+                          child: Text(
+                            '${Pointer.currentDoctor.name ?? ''}',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'Tajawal',
+                              fontWeight: FontWeight.bold,
+                              color: Const.mainColor,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: ScreenUtil().setHeight(
+                            15,
+                          ),
+                        ),
+                        FadeInLeft(
+                          child: _buildCards(
+                            imageAsset: 'assets/images/3.jpg',
+                            text: 'توليد الكود',
+                            onTap: () {
+                              Navigator.of(context).push(
+                                PageTransition(
+                                  child: SelectCourseToGenerate(),
+                                  type: PageTransitionType.downToUp,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        SizedBox(
+                          height: ScreenUtil().setHeight(
+                            15,
+                          ),
+                        ),
+                        FadeInRight(
+                          child: _buildCards(
+                            imageAsset: 'assets/images/2.jpg',
+                            text: 'مراجعة الغياب',
+                            onTap: () {
+                              Navigator.of(context).push(
+                                PageTransition(
+                                  child: DoctorAbsenceReview(),
+                                  type: PageTransitionType.downToUp,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        SizedBox(
+                          height: ScreenUtil().setHeight(
+                            15,
+                          ),
+                        ),
+                        FadeInRight(
+                          child: _buildCards(
+                            imageAsset: 'assets/images/4.jpg',
+                            text: 'تعديل الغياب',
+                            onTap: () {
+                              Navigator.of(context).push(
+                                PageTransition(
+                                  child: EditAbsencePage(),
+                                  type: PageTransitionType.downToUp,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
                     ),
-                    SlideInDown(
-                      child: Text(
-                        '${Pointer.currentDoctor.name ?? ''}',
+                  ),
+                )
+              : Container(
+                  color: Color(0xffF2F2F2),
+                  height: MediaQuery.of(context).size.height,
+                  child: Column(
+                    children: <Widget>[
+                      Image.asset(
+                        'assets/images/no_internet_connection.jpg',
+                      ),
+                      Text(
+                        'لا يوجد اتصال بالانترنت',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontFamily: 'Tajawal',
-                          fontWeight: FontWeight.bold,
-                          color: Const.mainColor,
-                          fontSize: 20,
+                          color: Colors.red,
+                          fontSize: 22,
                         ),
                       ),
-                    ),
-                    SizedBox(
-                      height: ScreenUtil().setHeight(
-                        15,
-                      ),
-                    ),
-                    FadeInLeft(
-                      child: _buildCards(
-                        imageAsset: 'assets/images/3.jpg',
-                        text: 'توليد الكود',
-                        onTap: () {
-                          Navigator.of(context).push(
-                            PageTransition(
-                              child: SelectCourseToGenerate(),
-                              type: PageTransitionType.downToUp,
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    SizedBox(
-                      height: ScreenUtil().setHeight(
-                        15,
-                      ),
-                    ),
-                    FadeInRight(
-                      child: _buildCards(
-                        imageAsset: 'assets/images/2.jpg',
-                        text: 'مراجعة الغياب',
-                        onTap: () {
-                          Navigator.of(context).push(
-                            PageTransition(
-                              child: DoctorAbsenceReview(),
-                              type: PageTransitionType.downToUp,
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    SizedBox(
-                      height: ScreenUtil().setHeight(
-                        15,
-                      ),
-                    ),
-                    FadeInRight(
-                      child: _buildCards(
-                        imageAsset: 'assets/images/4.jpg',
-                        text: 'تعديل الغياب',
-                        onTap: () {
-                          Navigator.of(context).push(
-                            PageTransition(
-                              child: EditAbsencePage(),
-                              type: PageTransitionType.downToUp,
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            )
-          : Container(
-              height: ScreenUtil.screenHeight,
-              width: ScreenUtil.screenWidth,
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
-            ),
     );
   }
 

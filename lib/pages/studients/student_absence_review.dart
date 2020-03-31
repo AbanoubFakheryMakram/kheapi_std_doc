@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:kheabia/models/pointer.dart';
 import 'package:kheabia/models/subject.dart';
+import 'package:kheabia/providers/network_provider.dart';
 import 'package:kheabia/utils/app_utils.dart';
 import 'package:kheabia/utils/const.dart';
 import 'package:kheabia/widgets/my_drop_down_form_field.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
 
 class StudentAbsenceReview extends StatefulWidget {
   @override
@@ -23,24 +25,6 @@ class _StudentAbsenceReviewState extends State<StudentAbsenceReview> {
   List<Map<String, String>> subjects = [];
 
   List<Subject> subjectsData = [];
-
-  bool networkIsActive;
-
-  @override
-  void initState() {
-    super.initState();
-
-    subscripToConnection();
-  }
-
-  subscripToConnection() async {
-    networkIsActive = await AppUtils.getConnectionState();
-    if (networkIsActive) {
-      loadSubjects();
-    } else {
-      networkIsActive = false;
-    }
-  }
 
   void loadSubjects() async {
     QuerySnapshot querySnapshot = await _firestore
@@ -87,6 +71,15 @@ class _StudentAbsenceReviewState extends State<StudentAbsenceReview> {
 
   @override
   Widget build(BuildContext context) {
+    var networkProvider = Provider.of<NetworkProvider>(context);
+
+    if (networkProvider.hasNetworkConnection != null &&
+        networkProvider.hasNetworkConnection) {
+      if (subjects.isEmpty) {
+        loadSubjects();
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Const.mainColor,
@@ -109,11 +102,11 @@ class _StudentAbsenceReviewState extends State<StudentAbsenceReview> {
           ),
         ),
       ),
-      body: networkIsActive == null
+      body: networkProvider.hasNetworkConnection == null
           ? Center(
               child: CircularProgressIndicator(),
             )
-          : networkIsActive == true
+          : networkProvider.hasNetworkConnection
               ? ListView(
                   children: <Widget>[
                     Image.asset(
@@ -230,24 +223,21 @@ class _StudentAbsenceReviewState extends State<StudentAbsenceReview> {
                 )
               : Container(
                   color: Color(0xffF2F2F2),
-                  height: ScreenUtil.screenHeight,
-                  width: ScreenUtil.screenWidth,
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        Image.asset(
-                          'assets/images/no_internet_connection.jpg',
+                  height: MediaQuery.of(context).size.height,
+                  child: Column(
+                    children: <Widget>[
+                      Image.asset(
+                        'assets/images/no_internet_connection.jpg',
+                      ),
+                      Text(
+                        'لا يوجد اتصال بالانترنت',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 22,
                         ),
-                        Text(
-                          'لا يوجد اتصال بالانترنت',
-                          style: TextStyle(
-                            fontSize: 22,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
     );

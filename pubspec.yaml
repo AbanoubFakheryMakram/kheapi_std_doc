@@ -26,11 +26,12 @@ dependencies:
   data_connection_checker:
   firebase_core: 
   firebase_auth: 
-  firebase_storage:
+  provider:
   cloud_firestore:
   twitter_qr_scanner:
   animated_text_kit:
   intl:
+  barcode_flutter:
 
 dev_dependencies:
   flutter_test:

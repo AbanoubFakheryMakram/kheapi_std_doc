@@ -5,10 +5,12 @@ import 'package:kheabia/animations/fade_animation.dart';
 import 'package:kheabia/models/doctor_absence_model.dart';
 import 'package:kheabia/models/pointer.dart';
 import 'package:kheabia/models/subject.dart';
+import 'package:kheabia/providers/network_provider.dart';
 import 'package:kheabia/utils/app_utils.dart';
 import 'package:kheabia/utils/const.dart';
 import 'package:kheabia/widgets/my_drop_down_form_field.dart';
 import 'package:progress_indicator_button/progress_button.dart';
+import 'package:provider/provider.dart';
 
 class EditAbsencePage extends StatefulWidget {
   @override
@@ -20,7 +22,7 @@ class _EditAbsencePageState extends State<EditAbsencePage> {
   List<DoctorAbsenceModel> students = List();
   List<Subject> subjectsData = [];
   final Firestore _firestore = Firestore.instance;
-  bool networkIsActive;
+
   String subject = '';
   String student = '';
   String course = '';
@@ -35,8 +37,6 @@ class _EditAbsencePageState extends State<EditAbsencePage> {
   void initState() {
     super.initState();
     selectedRadio = 0;
-    getDoctorSubjects();
-    subscripToConnection();
   }
 
   setSelectedRadio(int val) {
@@ -48,17 +48,18 @@ class _EditAbsencePageState extends State<EditAbsencePage> {
   }
 
   void getDoctorSubjects() async {
+    subjects.clear();
     QuerySnapshot querySnapshot = await _firestore
         .collection('Subjects')
         .getDocuments(); // fetch all subjects
 
+    print(querySnapshot.documents.length);
     for (int i = 0; i < querySnapshot.documents.length; i++) {
       // move inside each subject
       DocumentSnapshot currentSubject = querySnapshot.documents[i];
 
-      if (Pointer.currentDoctor.subjects.contains(
-        currentSubject.data['code'],
-      )) {
+      if (Pointer.currentDoctor.subjects
+          .contains(currentSubject.data['code'])) {
         Subject subject = Subject(
           name: currentSubject.data['name'],
           code: currentSubject.data['code'],
@@ -67,31 +68,33 @@ class _EditAbsencePageState extends State<EditAbsencePage> {
           profName: currentSubject.data['profName'],
         );
 
-        subjectsData.add(subject);
-        subjects.add(
-          {
-            'display':
-                '   ${currentSubject.data['code']}                  ${currentSubject.data['name']}',
-            'value': currentSubject.data['code'],
-          },
-        );
+        if (!subjectsData.contains(subject)) {
+          subjectsData.add(subject);
+          subjects.add(
+            {
+              'display':
+                  '   ${currentSubject.data['code']}                  ${currentSubject.data['name']}',
+              'value': currentSubject.data['code'],
+            },
+          );
+        }
       }
     }
 
     setState(() {});
   }
 
-  subscripToConnection() async {
-    networkIsActive = await AppUtils.getConnectionState();
-    if (networkIsActive) {
-    } else {
-      networkIsActive = false;
-    }
-    setState(() {});
-  }
-
   @override
   Widget build(BuildContext context) {
+    var networkProvider = Provider.of<NetworkProvider>(context);
+
+    if (networkProvider.hasNetworkConnection != null &&
+        networkProvider.hasNetworkConnection) {
+      if (subjects.isEmpty) {
+        getDoctorSubjects();
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Const.mainColor,
@@ -114,11 +117,11 @@ class _EditAbsencePageState extends State<EditAbsencePage> {
           ),
         ),
       ),
-      body: networkIsActive == null
+      body: networkProvider.hasNetworkConnection == null
           ? Center(
               child: CircularProgressIndicator(),
             )
-          : networkIsActive == true
+          : networkProvider.hasNetworkConnection
               ? SingleChildScrollView(
                   physics: BouncingScrollPhysics(),
                   child: Column(
@@ -326,10 +329,22 @@ class _EditAbsencePageState extends State<EditAbsencePage> {
                   ),
                 )
               : Container(
-                  height: ScreenUtil.screenHeight,
-                  width: ScreenUtil.screenWidth,
-                  child: Center(
-                    child: CircularProgressIndicator(),
+                  color: Color(0xffF2F2F2),
+                  height: MediaQuery.of(context).size.height,
+                  child: Column(
+                    children: <Widget>[
+                      Image.asset(
+                        'assets/images/no_internet_connection.jpg',
+                      ),
+                      Text(
+                        'لا يوجد اتصال بالانترنت',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 22,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
     );
@@ -420,14 +435,20 @@ class _EditAbsencePageState extends State<EditAbsencePage> {
 
     int numberOfTimes = int.parse(temp.numberOfTimes);
     if (selectedRadio == 0) {
-      await fir.updateData(
-        {
-          'attendenc': FieldValue.arrayRemove(['$course']),
-          'numberOfTimes': '${--numberOfTimes}',
-        },
-      );
+      if (numberOfTimes != 0 || numberOfTimes > -1) {
+        await fir.updateData(
+          {
+            'attendenc': FieldValue.arrayRemove(['$course']),
+            'numberOfTimes': '${--numberOfTimes}',
+          },
+        );
+      }
     } else {
       var selectedStd = students.firstWhere((std) => std.std_id == student);
+
+      print(numberOfTimes);
+      print(int.parse(selectedStd.currentCount));
+
       if (numberOfTimes >= int.parse(selectedStd.currentCount)) {
         AppUtils.showDialog(
           context: context,
@@ -464,8 +485,6 @@ class _EditAbsencePageState extends State<EditAbsencePage> {
 
     course = '';
     _courses.clear();
-    students.clear();
-    _students.clear();
     student = '';
     temp = null;
     setState(() {});
