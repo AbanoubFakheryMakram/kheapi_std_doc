@@ -24,7 +24,7 @@ class _SelectCourseToGenerateState extends State<SelectCourseToGenerate> {
   List<Subject> subjectsData = [];
   final Firestore _firestore = Firestore.instance;
   String subject = '';
-  List selectedCourses = [];
+  List<String> selectedCourses = <String>[];
 
   void getDoctorSubjects() async {
     subjects.clear();
@@ -224,7 +224,6 @@ class _SelectCourseToGenerateState extends State<SelectCourseToGenerate> {
                                   String formatted = formatter.format(now);
 
                                   if (lastDate == formatted) {
-
                                     selectedCourses =
                                         pref.getStringList('selectedCourses') ??
                                             [];
@@ -289,6 +288,9 @@ class _SelectCourseToGenerateState extends State<SelectCourseToGenerate> {
                             },
                           ),
                         ),
+                      ),
+                      SizedBox(
+                        height: ScreenUtil().setHeight(25),
                       ),
                       MyFadeAnimation(
                         delayinseconds: 2,

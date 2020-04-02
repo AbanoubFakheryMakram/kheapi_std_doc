@@ -26,13 +26,23 @@ class ProcessScannedData extends StatefulWidget {
 class _ProcessScannedDataState extends State<ProcessScannedData> {
   bool dataIsValid;
   bool isAlreadyExist = false;
+  bool stated = false;
 
   String msg = '';
   String date = '';
   String subjectCode = '';
   String doctorID = '';
 
+  NetworkProvider networkProvider;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   void makeDataProcessing() {
+    stated = true;
+    setState(() {});
     int numberOfHash = 0;
     int numberOfParenthess = 0;
 
@@ -124,24 +134,21 @@ class _ProcessScannedDataState extends State<ProcessScannedData> {
       );
       msg = '';
       isAlreadyExist = false;
-      setState(() {});
     } else {
       msg = 'لقد تم تسجيل حضورك بالفعل';
       isAlreadyExist = true;
       dataIsValid = false;
-      setState(() {});
     }
 
-    if (mounted) {
-      setState(() {});
-    }
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    var networkProvider = Provider.of<NetworkProvider>(context);
+    networkProvider = Provider.of<NetworkProvider>(context);
     if (networkProvider.hasNetworkConnection != null &&
-        networkProvider.hasNetworkConnection) {
+        networkProvider.hasNetworkConnection &&
+        !stated) {
       makeDataProcessing();
     }
 
