@@ -26,7 +26,7 @@ class ProcessScannedData extends StatefulWidget {
 class _ProcessScannedDataState extends State<ProcessScannedData> {
   bool dataIsValid;
   bool isAlreadyExist = false;
-  bool stated = false;
+  bool started = false;
 
   String msg = '';
   String date = '';
@@ -41,7 +41,7 @@ class _ProcessScannedDataState extends State<ProcessScannedData> {
   }
 
   void makeDataProcessing() {
-    stated = true;
+    started = true;
     setState(() {});
     int numberOfHash = 0;
     int numberOfParenthess = 0;
@@ -61,7 +61,7 @@ class _ProcessScannedDataState extends State<ProcessScannedData> {
     // if data has 4 dashes and 2 parentheses
     if (numberOfHash == 4 &&
         numberOfParenthess == 2 &&
-        widget.data.length >= 15) {
+        widget.data.length >= 12) {
       // init date regular expression
       RegExp dateReg = RegExp(
         r'^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$',
@@ -105,8 +105,12 @@ class _ProcessScannedDataState extends State<ProcessScannedData> {
         .collection('Subjects')
         .document(subjectCode)
         .collection('Students')
-        .document('${Pointer.currentStudent.id}') // 7000447656
+        .document('${Pointer.currentStudent.id}')
         .get();
+
+    if (stdSnapshot == null || stdSnapshot.documentID.isEmpty) {
+      return;
+    }
 
     String lastRegisteredDate = stdSnapshot.data['Last attendance'];
 
@@ -124,7 +128,7 @@ class _ProcessScannedDataState extends State<ProcessScannedData> {
           .collection('Subjects')
           .document(subjectCode)
           .collection('Students')
-          .document('${Pointer.currentStudent.id}') // 7000447656
+          .document('${Pointer.currentStudent.id}')
           .updateData(
         {
           'numberOfTimes': '${++currentNumberOfTimes}',
@@ -148,7 +152,7 @@ class _ProcessScannedDataState extends State<ProcessScannedData> {
     networkProvider = Provider.of<NetworkProvider>(context);
     if (networkProvider.hasNetworkConnection != null &&
         networkProvider.hasNetworkConnection &&
-        !stated) {
+        !started) {
       makeDataProcessing();
     }
 

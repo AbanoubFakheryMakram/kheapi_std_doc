@@ -27,7 +27,6 @@ class DoctorHomePage extends StatefulWidget {
 }
 
 class _DoctorHomePageState extends State<DoctorHomePage> {
-
   void loadUserData() async {
     DocumentSnapshot snapshot = await FirebaseUtils.getCurrentUserData(
       username: widget.username,
@@ -51,7 +50,8 @@ class _DoctorHomePageState extends State<DoctorHomePage> {
     var networkProvider = Provider.of<NetworkProvider>(context);
 
     if (networkProvider.hasNetworkConnection != null &&
-        networkProvider.hasNetworkConnection) {
+        networkProvider.hasNetworkConnection &&
+        Pointer.currentDoctor.id == null) {
       loadUserData();
     }
 
@@ -84,7 +84,10 @@ class _DoctorHomePageState extends State<DoctorHomePage> {
                 onNegativeButtonPressed: () {
                   SharedPreferences.getInstance().then(
                     (pref) {
-                      pref.clear();
+                      pref.remove('username');
+                      pref.remove('type');
+                      Pointer.currentDoctor.id == null;
+                      Pointer.currentDoctor.name == null;
                       Navigator.of(context).pop();
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(

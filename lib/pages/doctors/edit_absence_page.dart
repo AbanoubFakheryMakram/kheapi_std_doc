@@ -127,9 +127,9 @@ class _EditAbsencePageState extends State<EditAbsencePage> {
                   child: Column(
                     children: <Widget>[
                       Hero(
-                        tag: 'assets/images/2.jpg',
+                        tag: 'assets/images/4.jpg',
                         child: Image.asset(
-                          'assets/images/2.jpg',
+                          'assets/images/4.jpg',
                           fit: BoxFit.cover,
                           width: double.infinity,
                           height: ScreenUtil().setHeight(
