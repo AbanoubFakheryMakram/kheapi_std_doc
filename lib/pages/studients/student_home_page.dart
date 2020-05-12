@@ -24,6 +24,13 @@ class StudentHomePage extends StatefulWidget {
 }
 
 class _StudentHomePageState extends State<StudentHomePage> {
+  @override
+  void initState() {
+    super.initState();
+
+    Pointer.currentStudent = null;
+  }
+
   void loadUserData() async {
     DocumentSnapshot snapshot = await FirebaseUtils.getCurrentUserData(
         username: widget.username, collection: 'Students');
@@ -39,7 +46,8 @@ class _StudentHomePageState extends State<StudentHomePage> {
 
     if (networkProvider.hasNetworkConnection != null &&
         networkProvider.hasNetworkConnection) {
-      if (Pointer.currentStudent.name == null ||
+      if (Pointer.currentStudent == null ||
+          Pointer.currentStudent.name == null ||
           Pointer.currentStudent.id == null) {
         loadUserData();
       }

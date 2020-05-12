@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kheabia/pages/auth/login_page.dart';
 import 'package:kheabia/pages/doctors/doctor_home_page.dart';
-import 'package:kheabia/pages/studients/process_scaned_data.dart';
 import 'package:kheabia/pages/studients/student_home_page.dart';
 import 'package:kheabia/providers/network_provider.dart';
 import 'package:provider/provider.dart';
